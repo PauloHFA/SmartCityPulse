@@ -29,3 +29,4 @@ COPY --from=builder /usr/src/app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /usr/src/app/apps/telemetria-consumer/dist ./apps/telemetria-consumer/dist
 
 CMD ["node", "apps/telemetria-consumer/dist/index.js"]
+

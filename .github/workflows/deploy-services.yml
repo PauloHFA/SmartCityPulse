@@ -74,3 +74,4 @@ jobs:
             --cluster smartcity-dev-cluster \
             --service ${{ matrix.service.ecs_service }} \
             --force-new-deployment
+

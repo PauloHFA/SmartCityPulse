@@ -146,9 +146,29 @@ async function processarEvento(evento: TelemetriaEvento) {
       })
     );
 
-    if (anomalia) {
+    // Checagem de Limiares Fixos (RF-03)
+    let violouLimiar = false;
+    let severidadeLimiar: 'baixa' | 'media' | 'alta' | 'critica' = 'alta';
+
+    if (metricaAvaliada === 'pm25') {
+      if (valorLido >= 80) {
+        violouLimiar = true;
+        severidadeLimiar = 'critica';
+      } else if (valorLido >= 50) {
+        violouLimiar = true;
+        severidadeLimiar = 'alta';
+      }
+    } else if (metricaAvaliada === 'velocidade' && valorLido <= 15) {
+      violouLimiar = true;
+      severidadeLimiar = 'media';
+    }
+
+    if (anomalia || violouLimiar) {
+      const severidadeFinal = Math.abs(z) > 5 || severidadeLimiar === 'critica' ? 'critica' : severidadeLimiar;
+      const motivo = anomalia && violouLimiar ? 'Estatístico + Limiar Fixo' : anomalia ? 'Desvio Estatístico (EWMA/z-score)' : 'Limiar Fixo Excedido';
+      
       console.warn(
-        `🚨 [Consumidor] Anomalia detectada no sensor ${evento.sensorId}! Métrica: ${metricaAvaliada}, Valor: ${valorLido}, z-score: ${z.toFixed(2)}`
+        `🚨 [Consumidor] Alerta detectado (${motivo}) no sensor ${evento.sensorId}! Métrica: ${metricaAvaliada}, Valor: ${valorLido}, z: ${z.toFixed(2)}, Sev: ${severidadeFinal}`
       );
 
       // Constrói alerta e publica no SNS para fan-out
@@ -162,9 +182,9 @@ async function processarEvento(evento: TelemetriaEvento) {
         tipoSensor: evento.tipo,
         metrica: metricaAvaliada,
         valorLido,
-        limiarOuEsperado: Math.round((valorLido / (z || 1)) * 10) / 10,
+        limiarOuEsperado: violouLimiar ? (metricaAvaliada === 'pm25' ? 50 : 15) : Math.round((valorLido / (z || 1)) * 10) / 10,
         zScore: Math.round(z * 100) / 100,
-        severidade: Math.abs(z) > 5 ? 'critica' : 'alta',
+        severidade: severidadeFinal,
         abertoEm: new Date().toISOString(),
         dedupeKey,
       };
@@ -254,3 +274,4 @@ async function loopConsumo() {
 }
 
 loopConsumo();
+

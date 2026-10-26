@@ -36,3 +36,4 @@ export async function zonasRoutes(fastify: FastifyInstance) {
     return rows[0];
   });
 }
+

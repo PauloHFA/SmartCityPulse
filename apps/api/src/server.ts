@@ -8,6 +8,11 @@ import { zonasRoutes } from './routes/zonas';
 import { sensoresRoutes } from './routes/sensores';
 import { alertasRoutes } from './routes/alertas';
 import { ocorrenciasRoutes } from './routes/ocorrencias';
+import { telemetriaRoutes } from './routes/telemetria';
+import { regrasRoutes } from './routes/regras';
+import { usuariosRoutes } from './routes/usuarios';
+import { painelRoutes } from './routes/painel';
+import { relatoriosRoutes } from './routes/relatorios';
 import { iniciarWorkerOcorrencias, pararWorkerOcorrencias } from './workers/ocorrencias-worker';
 import { pool } from './db';
 
@@ -65,6 +70,11 @@ async function main() {
   await server.register(sensoresRoutes);
   await server.register(alertasRoutes);
   await server.register(ocorrenciasRoutes);
+  await server.register(telemetriaRoutes);
+  await server.register(regrasRoutes);
+  await server.register(usuariosRoutes);
+  await server.register(painelRoutes);
+  await server.register(relatoriosRoutes);
 
   // Inicia worker em segundo plano para consumir atualizações de imagem da Lambda
   iniciarWorkerOcorrencias();
@@ -96,3 +106,4 @@ async function main() {
 }
 
 main();
+

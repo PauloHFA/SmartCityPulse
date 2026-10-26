@@ -31,3 +31,4 @@ COPY --from=builder /usr/src/app/apps/api/dist ./apps/api/dist
 EXPOSE 3000
 
 CMD ["node", "apps/api/dist/server.js"]
+

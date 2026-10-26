@@ -84,3 +84,4 @@ export async function ocorrenciasRoutes(fastify: FastifyInstance) {
     };
   });
 }
+

@@ -29,3 +29,4 @@ COPY --from=builder /usr/src/app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /usr/src/app/apps/alertas-service/dist ./apps/alertas-service/dist
 
 CMD ["node", "apps/alertas-service/dist/index.js"]
+

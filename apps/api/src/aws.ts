@@ -1,6 +1,8 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from '@aws-sdk/client-sqs';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -21,7 +23,12 @@ const awsConfig = {
 export const s3Client = new S3Client(awsConfig);
 export const sqsClient = new SQSClient(awsConfig);
 
+const rawDynamo = new DynamoDBClient(awsConfig);
+export const dynamo = DynamoDBDocumentClient.from(rawDynamo);
+
 export const S3_BUCKET_IMAGENS = process.env.S3_BUCKET_IMAGENS || 'smartcity-ocorrencias-imagens';
+export const S3_BUCKET_RELATORIOS = process.env.S3_BUCKET_RELATORIOS || 'smartcity-relatorios';
+export const DYNAMODB_TELEMETRIA_TABLE = process.env.DYNAMODB_TELEMETRIA_TABLE || 'telemetria';
 export const SQS_OCORRENCIAS_QUEUE_URL = process.env.SQS_OCORRENCIAS_QUEUE_URL || 'http://localhost:4566/000000000000/smartcity-ocorrencias-imagem-queue';
 
 export async function gerarUploadUrl(key: string, contentType = 'image/jpeg'): Promise<string> {
@@ -40,3 +47,4 @@ export async function gerarDownloadUrl(key: string): Promise<string> {
   });
   return getSignedUrl(s3Client, command, { expiresIn: 7200 });
 }
+

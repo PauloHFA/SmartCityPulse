@@ -86,3 +86,4 @@ export async function alertasRoutes(fastify: FastifyInstance) {
     return rows[0];
   });
 }
+

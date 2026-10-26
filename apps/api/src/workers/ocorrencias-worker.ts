@@ -60,3 +60,4 @@ export function iniciarWorkerOcorrencias() {
 export function pararWorkerOcorrencias() {
   isRunning = false;
 }
+

@@ -51,3 +51,4 @@ Este documento descreve os procedimentos de mitigação rápida para cada um dos
      ```bash
      aws ecs update-service --cluster smartcity-dev-cluster --service smartcity-dev-api --desired-count 3
      ```
+

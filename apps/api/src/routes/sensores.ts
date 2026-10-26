@@ -65,3 +65,4 @@ export async function sensoresRoutes(fastify: FastifyInstance) {
     return rows[0];
   });
 }
+
