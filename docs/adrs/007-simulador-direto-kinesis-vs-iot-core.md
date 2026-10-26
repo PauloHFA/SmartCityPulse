@@ -12,3 +12,4 @@ O simulador de telemetria pública diretamente no **Amazon Kinesis Data Streams*
 ## Justificativa
 1. **Simplicidade e Performance**: Permite simular 500 eventos/segundo em poucas chamadas de API sem gerenciar provisionamento de certificados para 5.000 sensores virtuais.
 2. **Particionamento Garantido**: O particionamento determinístico por `sensorId` é feito na chamada de ingestão.
+

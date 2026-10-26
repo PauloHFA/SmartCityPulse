@@ -48,7 +48,7 @@ export async function telemetriaRoutes(fastify: FastifyInstance) {
         })
       );
 
-      return response.Item || response.Items || [];
+      return response.Items || [];
     } catch (err) {
       req.log.error(err, 'Erro ao consultar telemetria por sensor no DynamoDB');
       reply.status(500);

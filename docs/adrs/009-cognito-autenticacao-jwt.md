@@ -12,3 +12,4 @@ Adotamos o **Amazon Cognito User Pools** para gerenciamento de identidades, aute
 ## Justificativa
 1. **Conformidade de Segurança**: Políticas nativas de complexidade de senha, MFA e detecção de credenciais comprometidas.
 2. **Desacoplamento de Credenciais**: A tabela `usuarios` do banco PostgreSQL armazena apenas metadados de domínio vinculados ao `cognito_sub`, eliminando o risco de exposição de senhas ou hashes em dumps de banco.
+

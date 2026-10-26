@@ -49,6 +49,16 @@ async function processarAlerta(alerta: AlertaEvento) {
     return;
   }
 
+  // Garante integridade referencial para sensores e zonas descobertos dinamicamente
+  await pool.query(
+    `INSERT INTO zonas (id, nome) VALUES ($1, $1) ON CONFLICT (id) DO NOTHING`,
+    [alerta.zonaId]
+  );
+  await pool.query(
+    `INSERT INTO sensores (id, tipo, zona_id, status) VALUES ($1, $2, $3, 'ativo') ON CONFLICT (id) DO NOTHING`,
+    [alerta.sensorId, alerta.tipoSensor, alerta.zonaId]
+  );
+
   // Cria novo alerta no PostgreSQL
   await pool.query(
     `INSERT INTO alertas (id, sensor_id, zona_id, severidade, status, aberto_em, dedupe_key, detalhes, contador_ocorrencias)

@@ -58,6 +58,16 @@ export async function ocorrenciasRoutes(fastify: FastifyInstance) {
     const ocorrenciaId = `oco-${crypto.randomUUID().slice(0, 8)}`;
     const usuarioId = body.usuario_id || 'usr-cidadao-anonimo';
 
+    // Garante integridade do usuário na base
+    if (usuarioId) {
+      await pool.query(
+        `INSERT INTO usuarios (id, cognito_sub, nome, email, perfil)
+         VALUES ($1, $1, $1, $2, 'cidadao')
+         ON CONFLICT (id) DO NOTHING`,
+        [usuarioId, `${usuarioId}@smartcity.gov.br`]
+      );
+    }
+
     let s3Key: string | null = null;
     let uploadUrl: string | null = null;
 

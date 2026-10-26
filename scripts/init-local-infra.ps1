@@ -25,7 +25,7 @@ while ($attempt -lt $maxAttempts -and -not $healthy) {
 
 if ($healthy) {
     Write-Host "Ambiente local pronto para desenvolvimento!" -ForegroundColor Green
-    Write-Host "PostgreSQL: localhost:5432 (smartcity / postgres / postgres)"
+    Write-Host "PostgreSQL: localhost:5433 (smartcity / postgres / postgres)"
     Write-Host "LocalStack: http://localhost:4566"
 } else {
     Write-Host "Aviso: Nem todos os serviços reportaram healthy dentro do tempo limite. Verifique com 'docker compose ps'." -ForegroundColor Red

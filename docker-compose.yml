@@ -8,7 +8,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - postgres_data:/var/lib/postgresql/data
@@ -49,7 +49,7 @@ services:
     container_name: smartcity-api
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${API_PORT:-3001}:3000"
     environment:
       - PORT=3000
       - HOST=0.0.0.0

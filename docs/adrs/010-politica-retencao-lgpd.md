@@ -14,3 +14,4 @@ O monitoramento urbano coleta dados contínuos de sensores e fotos/descrições 
    - S3 Data Lake: Transição automática para S3 Glacier Flexible Retrieval após 90 dias e expurgo após 365 dias.
    - S3 Ocorrências: Miniaturas geradas e fotos preservadas com políticas de retenção controladas.
    - CloudWatch Logs: Retenção máxima de 7 dias com mascaramento de IPs e tokens.
+

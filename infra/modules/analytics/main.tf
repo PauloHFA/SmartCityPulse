@@ -191,3 +191,4 @@ resource "aws_athena_workgroup" "analytics" {
 
   tags = var.tags
 }
+

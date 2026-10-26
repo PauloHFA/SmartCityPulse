@@ -14,3 +14,4 @@ O NAT Gateway gerenciado pela AWS cobra uma taxa fixa por hora (~$0.045/hora por
 ## Justificativa
 - Elimina mais de 70% dos custos surpresa de infraestrutura de rede em ambientes de desenvolvimento e teste.
 - Mantém isolamento e segurança sem comprometer a comunicação essencial.
+
