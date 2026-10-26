@@ -1,0 +1,49 @@
+# Dependências
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.pyc
+__pycache__/
+.pytest_cache/
+
+# Ambientes virtuais
+.venv/
+venv/
+ENV/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# LocalStack & Bancos Locais
+localstack_data/
+postgres_data/
+
+# Logs e Cobertura
+logs/
+*.log
+npm-debug.log*
+coverage/
+.nyc_output
+
+# IDEs e SO
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.env
+!.env.example
+

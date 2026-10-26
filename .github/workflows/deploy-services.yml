@@ -1,0 +1,76 @@
+name: CI/CD - Build e Implantação no ECS (OIDC)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write  # Obrigatório para autenticação segura via AWS OIDC (sem chaves fixas)
+  contents: read
+
+jobs:
+  test:
+    name: Testes e Validação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Executar Testes Unitários
+        run: npm test
+
+  deploy:
+    name: Build Docker e Deploy no ECS
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - name: api
+            ecs_service: smartcity-dev-api
+          - name: telemetria-consumer
+            ecs_service: smartcity-dev-telemetria-consumer
+          - name: alertas-service
+            ecs_service: smartcity-dev-alertas-service
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Autenticar na AWS via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-1
+
+      - name: Login no Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag e Push da Imagem
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$ECR_REGISTRY/smartcity-${{ matrix.service.name }}:$IMAGE_TAG"
+          docker build -f ./apps/${{ matrix.service.name }}/Dockerfile -t $IMAGE_URI .
+          docker push $IMAGE_URI
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+
+      - name: Atualizar Serviço no ECS Fargate com Rollback Automático
+        run: |
+          aws ecs update-service \
+            --cluster smartcity-dev-cluster \
+            --service ${{ matrix.service.ecs_service }} \
+            --force-new-deployment

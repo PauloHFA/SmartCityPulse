@@ -1,0 +1,23 @@
+{
+  "name": "@smartcity/telemetria-consumer",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.550.0",
+    "@aws-sdk/client-kinesis": "^3.550.0",
+    "@aws-sdk/client-sns": "^3.550.0",
+    "@aws-sdk/lib-dynamodb": "^3.550.0",
+    "@smartcity/shared": "*",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  }
+}

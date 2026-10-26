@@ -1,0 +1,157 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartcity-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-smartcity}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-smartcity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartcity-net
+
+  localstack:
+    image: localstack/localstack:3.8
+    container_name: smartcity-localstack
+    restart: unless-stopped
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=kinesis,dynamodb,s3,sqs,sns
+      - AWS_DEFAULT_REGION=us-east-1
+      - PERSISTENCE=0
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - ./docker/localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh:ro
+      - localstack_data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartcity-net
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    container_name: smartcity-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=smartcity
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - S3_BUCKET_IMAGENS=smartcity-ocorrencias-imagens
+      - SQS_OCORRENCIAS_QUEUE_URL=http://localstack:4566/000000000000/smartcity-ocorrencias-imagem-queue
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - smartcity-net
+    profiles:
+      - apps
+
+  telemetria-consumer:
+    build:
+      context: .
+      dockerfile: ./apps/telemetria-consumer/Dockerfile
+    container_name: smartcity-telemetria-consumer
+    restart: unless-stopped
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - KINESIS_STREAM_NAME=smartcity-telemetria
+      - DYNAMODB_TELEMETRIA_TABLE=telemetria
+      - DYNAMODB_ESTADO_SENSOR_TABLE=estado_sensor
+      - DYNAMODB_IDEMPOTENCIA_TABLE=idempotencia
+      - SNS_ALERTAS_TOPIC_ARN=arn:aws:sns:us-east-1:000000000000:smartcity-alertas-topic
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - smartcity-net
+    profiles:
+      - apps
+
+  alertas-service:
+    build:
+      context: .
+      dockerfile: ./apps/alertas-service/Dockerfile
+    container_name: smartcity-alertas-service
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=smartcity
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - SQS_ALERTAS_QUEUE_URL=http://localstack:4566/000000000000/smartcity-alertas-queue
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - smartcity-net
+    profiles:
+      - apps
+
+  simulator:
+    build:
+      context: ./apps/simulator
+      dockerfile: Dockerfile
+    container_name: smartcity-simulator
+    restart: unless-stopped
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - STREAM_NAME=smartcity-telemetria
+      - SENSORS_COUNT=60
+      - INTERVAL_SECONDS=5
+      - ANOMALY_CHANCE=0.08
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - smartcity-net
+    profiles:
+      - apps
+
+networks:
+  smartcity-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  localstack_data:

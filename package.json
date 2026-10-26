@@ -1,0 +1,24 @@
+{
+  "name": "smartcity-pulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma de monitoramento urbano e IoT em tempo real (AWS Well-Architected)",
+  "workspaces": [
+    "packages/*",
+    "apps/api",
+    "apps/telemetria-consumer",
+    "apps/alertas-service"
+  ],
+  "scripts": {
+    "build": "npm run --workspaces build",
+    "test": "npm run --workspaces test",
+    "lint": "npm run --workspaces lint",
+    "compose:up": "docker-compose up -d postgres localstack",
+    "compose:down": "docker-compose down",
+    "compose:apps": "docker-compose --profile apps up -d",
+    "compose:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
