@@ -1,0 +1,38 @@
+# Configuração do Coletor ADOT (AWS Distro for OpenTelemetry) em sidecar no ECS Fargate
+# Conforme ADR 005 e Seção 10.1 do Documento de Arquitetura
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+
+exporters:
+  awsxray:
+    region: us-east-1
+  awsemf:
+    region: us-east-1
+    namespace: SmartCityPulse/Metrics
+    dimension_rollup_option: 0
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [awsxray]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [awsemf]

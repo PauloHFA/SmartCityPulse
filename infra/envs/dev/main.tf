@@ -87,6 +87,27 @@ module "rds" {
   tags            = local.common_tags
 }
 
+# 7. Módulo de Analytics & Data Lake (Firehose, Parquet, Glue, Athena)
+module "analytics" {
+  source             = "../../modules/analytics"
+  project_name       = var.project_name
+  environment        = var.environment
+  kinesis_stream_arn = module.kinesis.stream_arn
+  s3_bucket_arn      = "arn:aws:s3:::${module.s3.telemetria_raw_bucket}"
+  tags               = local.common_tags
+}
+
+# 8. Módulo de Observabilidade & Alarmes (CloudWatch, OTel, Dashboards)
+module "observability" {
+  source              = "../../modules/observability"
+  project_name        = var.project_name
+  environment         = var.environment
+  sns_alert_topic_arn = module.sqs_sns.alertas_topic_arn
+  kinesis_stream_name = module.kinesis.stream_name
+  alertas_dlq_name    = "${var.project_name}-${var.environment}-alertas-dlq"
+  tags                = local.common_tags
+}
+
 # Regra de Security Group: subnets de aplicação podem acessar porta 5432 do RDS
 resource "aws_security_group_rule" "app_to_rds" {
   type              = "ingress"

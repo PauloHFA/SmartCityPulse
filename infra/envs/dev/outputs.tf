@@ -22,3 +22,11 @@ output "sqs_alertas_queue_url" {
   value = module.sqs_sns.alertas_queue_url
 }
 
+output "athena_workgroup_name" {
+  value = module.analytics.athena_workgroup_name
+}
+
+output "cloudwatch_dashboard_name" {
+  value = module.observability.dashboard_name
+}
+
