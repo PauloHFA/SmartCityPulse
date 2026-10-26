@@ -55,3 +55,4 @@ export async function painelRoutes(fastify: FastifyInstance) {
     };
   });
 }
+

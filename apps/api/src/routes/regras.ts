@@ -44,3 +44,4 @@ export async function regrasRoutes(fastify: FastifyInstance) {
     return rows[0];
   });
 }
+

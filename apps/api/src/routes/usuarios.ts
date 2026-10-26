@@ -41,3 +41,4 @@ export async function usuariosRoutes(fastify: FastifyInstance) {
     return rows[0];
   });
 }
+
